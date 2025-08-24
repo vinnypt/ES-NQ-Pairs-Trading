@@ -1,0 +1,13 @@
+pandas 'Data manipulation, handling OHLC price data'
+
+numpy 'Numerical calculations, arrays, math operations'
+
+matplotlib 'Basic plotting for analysis and visualization'
+
+seaborn 'Enhanced plotting, visualizing spreads and distributions'
+
+statsmodels 'Statistical analysis, regression, cointegration tests'
+
+scipy 'Additional stats functions and numerical methods'
+
+yfinance 'Downloading historical daily price data for ES and NQ'
