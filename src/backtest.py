@@ -5,6 +5,7 @@ def backtest(input_path="data/ES_NQ_signals.csv"):
     """
     Backtests the pairs trading strategy using generated signals.
     Calculates daily portfolio returns, cumulative returns, and Sharpe ratio.
+    Returns the DataFrame and key metrics.
     """
 
     df = pd.read_csv(input_path, parse_dates=["Date"])
@@ -25,17 +26,27 @@ def backtest(input_path="data/ES_NQ_signals.csv"):
     df["Drawdown"] = df["Cumulative_Return"] / df["Cumulative_Max"] - 1
     max_drawdown = df["Drawdown"].min()
 
-    print(f"Sharpe Ratio: {sharpe:.2f}")
-    print(f"Cumulative Return: {df['Cumulative_Return'].iloc[-1]:.2f}x")
-    print(f"Max Drawdown: {max_drawdown:.2%}")
+    trade_mask = df["Signal"].shift(1) != 0 
+    trade_returns = df.loc[trade_mask, "Portfolio_Return"]
+    hit_rate = (trade_returns > 0).sum() / len(trade_returns) if len(trade_returns) > 0 else np.nan
 
-    return df
+    metrics = {
+        "sharpe": sharpe,
+        "cumulative_return": df["Cumulative_Return"].iloc[-1],
+        "max_drawdown": max_drawdown,
+        "hit_rate": hit_rate
+    }
 
-if __name__ == "__main__":
-    backtest()
-
-from utils import plot_cumulative_returns, plot_spread_with_signals
+    return df, metrics
 
 df = backtest()
-plot_cumulative_returns(df)
-plot_spread_with_signals(df)
+
+if __name__ == "__main__":
+    from utils import plot_cumulative_returns, plot_spread_with_signals
+    df, metrics = backtest()
+    print(f"Sharpe Ratio: {metrics['sharpe']:.2f}")
+    print(f"Cumulative Return: {metrics['cumulative_return']:.2f}x")
+    print(f"Max Drawdown: {metrics['max_drawdown']:.2%}")
+    print(f"Hit Rate: {metrics['hit_rate']:.2%}")
+    plot_cumulative_returns(df)
+    plot_spread_with_signals(df)
